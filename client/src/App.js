@@ -1,25 +1,46 @@
-import logo from './logo.svg';
 import './App.css';
+import { useState, useContext, useEffect } from "react";
+import { Link } from "react-router-dom";
+import Phones from "./components/Phones";
+import Phone from "./components/Phone";
+import axios from "axios";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+    const [phones, setPhones] = useState([]);
+    const [selectedPhone, setSelectedPhone] = useState(undefined);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        axios.get("http://localhost:5005/api/phones")
+        .then(response => {
+            setPhones(response.data);
+        })
+    }, [])
+
+    function handlePhoneClick(id) {
+        setLoading(true);
+
+        axios.get(`http://localhost:5005/api/phones/${id}`)
+        .then(response => {
+            setLoading(false);
+            setSelectedPhone(response.data);
+        })
+    }
+
+    return (
+        <div className="App">
+                <Phones phones={phones} handlePhoneClick={handlePhoneClick}/>
+
+            {
+                loading && <p>Is Loading</p>
+            }
+            {
+                selectedPhone && <Phone selectedPhone={selectedPhone}/>
+            }
+
+        </div>
+    );
 }
 
 export default App;
